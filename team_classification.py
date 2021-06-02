@@ -20,6 +20,10 @@ from torchvision import datasets, transforms
 from torch import nn, optim
 import cv2
 
+!rm -rf '/content/drive/MyDrive/Colab Notebooks/football/train'
+
+!unzip './train2.zip'
+
 # version of pytorch
 print(torch.__version__)
 
@@ -31,12 +35,12 @@ transform = transforms.Compose([
                               ])
 
 # define dataset
-trainData = torchvision.datasets.ImageFolder('./team_dataset/train', transform=transform)
-testData  = torchvision.datasets.ImageFolder('./team_dataset/test',  transform=transform)
+trainData = torchvision.datasets.ImageFolder('./train', transform=transform)
+# testData  = torchvision.datasets.ImageFolder('./team_dataset/test',  transform=transform)
 
 # defining trainloader and testloader
 trainloader = torch.utils.data.DataLoader(trainData, batch_size=64, shuffle=True)
-testloader = torch.utils.data.DataLoader(testData, batch_size=64, shuffle=True)
+# testloader = torch.utils.data.DataLoader(testData, batch_size=64, shuffle=True)
 
 # shape of training data
 dataiter = iter(trainloader)
@@ -67,7 +71,7 @@ class Net(nn.Module):
       )
 
       self.linear_layers = nn.Sequential(
-          nn.Linear(4 * 8 * 8, 3)
+          nn.Linear(4 * 8 * 8, 4)
       )
 
   # Defining the forward pass    
@@ -90,7 +94,7 @@ if torch.cuda.is_available():
     
 print(model)
 
-for i in range(15):
+for i in range(5):
     running_loss = 0
     for images, labels in trainloader:
 
@@ -113,28 +117,28 @@ for i in range(15):
     else:
         print("Epoch {} - Training loss: {}".format(i+1, running_loss/len(trainloader)))
 
-# getting predictions on test set and measuring the performance
-correct_count, all_count = 0, 0
-for images,labels in testloader:
-  for i in range(len(labels)):
-    if torch.cuda.is_available():
-        images = images.cuda()
-        labels = labels.cuda()
-    img = images[i].view(1, 3, 32, 32)
-    with torch.no_grad():
-        logps = model(img)
+# # getting predictions on test set and measuring the performance
+# correct_count, all_count = 0, 0
+# for images,labels in testloader:
+#   for i in range(len(labels)):
+#     if torch.cuda.is_available():
+#         images = images.cuda()
+#         labels = labels.cuda()
+#     img = images[i].view(1, 3, 32, 32)
+#     with torch.no_grad():
+#         logps = model(img)
 
     
-    ps = torch.exp(logps)
-    probab = list(ps.cpu()[0])
-    pred_label = probab.index(max(probab))
-    true_label = labels.cpu()[i]
-    if(true_label == pred_label):
-      correct_count += 1
-    all_count += 1
+#     ps = torch.exp(logps)
+#     probab = list(ps.cpu()[0])
+#     pred_label = probab.index(max(probab))
+#     true_label = labels.cpu()[i]
+#     if(true_label == pred_label):
+#       correct_count += 1
+#     all_count += 1
 
-print("Number Of Images Tested =", all_count)
-print("\nModel Accuracy =", (correct_count/all_count))
+# print("Number Of Images Tested =", all_count)
+# print("\nModel Accuracy =", (correct_count/all_count))
 
-torch.save(model.state_dict(), './teamCategoryModel.pth')
+torch.save(model.state_dict(), './teamCategoryModel3.pth')
 
